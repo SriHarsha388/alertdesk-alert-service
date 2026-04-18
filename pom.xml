@@ -12,10 +12,10 @@
     </parent>
 
     <groupId>com.alertdesk</groupId>
-    <artifactId>alertdesk-customer-service</artifactId>
+    <artifactId>alertdesk-alert-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>alertdesk-customer-service</name>
-    <description>AlertDesk customer service alerts API</description>
+    <name>alertdesk-alert-service</name>
+    <description>AlertDesk Alert service API</description>
 
     <properties>
         <java.version>21</java.version>
