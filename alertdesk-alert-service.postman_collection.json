@@ -26,7 +26,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/alerts?page=0&size=10&customerId=CUST-2187&alertType=APP_SCAM&riskBand=HIGH&status=UNDER_REVIEW&assignedAnalyst=s.okafor&triggeredFrom=2024-01-01T00:00:00Z&triggeredTo=2024-12-31T23:59:59Z",
+          "raw": "{{baseUrl}}/api/alerts?page=0&size=20&status=UNDER_REVIEW&riskBand=HIGH&alertType=APP_SCAM&amountMin=20000&amountMax=40000&sortBy=amount&sortDir=asc",
           "host": [
             "{{baseUrl}}"
           ],
@@ -41,39 +41,39 @@
             },
             {
               "key": "size",
-              "value": "10"
-            },
-            {
-              "key": "customerId",
-              "value": "CUST-2187"
-            },
-            {
-              "key": "alertType",
-              "value": "APP_SCAM"
-            },
-            {
-              "key": "riskBand",
-              "value": "HIGH"
+              "value": "20"
             },
             {
               "key": "status",
               "value": "UNDER_REVIEW"
             },
             {
-              "key": "assignedAnalyst",
-              "value": "s.okafor"
+              "key": "riskBand",
+              "value": "HIGH"
             },
             {
-              "key": "triggeredFrom",
-              "value": "2024-01-01T00:00:00Z"
+              "key": "alertType",
+              "value": "APP_SCAM"
             },
             {
-              "key": "triggeredTo",
-              "value": "2024-12-31T23:59:59Z"
+              "key": "amountMin",
+              "value": "20000"
+            },
+            {
+              "key": "amountMax",
+              "value": "40000"
+            },
+            {
+              "key": "sortBy",
+              "value": "amount"
+            },
+            {
+              "key": "sortDir",
+              "value": "asc"
             }
           ]
         },
-        "description": "Returns a paginated alert list. Remove any query parameters you do not want to filter by."
+        "description": "Returns a paginated alert list. All filters are optional and use AND logic when combined. Valid sortBy values are triggeredAt, amount, status, riskBand. Valid sortDir values are desc and asc."
       },
       "response": []
     },
