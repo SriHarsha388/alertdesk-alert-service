@@ -9,6 +9,7 @@ import com.alertdesk.customerservice.alerts.api.dto.AlertSummaryGroupsResponse;
 import com.alertdesk.customerservice.alerts.service.AlertService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -26,13 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Validated
 @RequestMapping("/api/alerts")
+@RequiredArgsConstructor
 public class AlertController {
 
     private final AlertService alertService;
-
-    public AlertController(AlertService alertService) {
-        this.alertService = alertService;
-    }
 
     @GetMapping
     public AlertListResponse listAlerts(

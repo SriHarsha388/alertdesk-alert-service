@@ -11,6 +11,7 @@ import com.alertdesk.customerservice.alerts.domain.Alert;
 import com.alertdesk.customerservice.alerts.repository.AlertRepository;
 import com.alertdesk.customerservice.alerts.repository.AlertSpecifications;
 import com.alertdesk.customerservice.shared.api.ApiException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,15 +25,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AlertService {
 
     private final AlertRepository alertRepository;
     private final AlertMapper alertMapper;
-
-    public AlertService(AlertRepository alertRepository, AlertMapper alertMapper) {
-        this.alertRepository = alertRepository;
-        this.alertMapper = alertMapper;
-    }
 
     @Transactional(readOnly = true)
     public AlertListResponse listAlerts(AlertFilters filters, Pageable pageable) {

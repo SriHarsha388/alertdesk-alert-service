@@ -11,12 +11,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "alerts")
 public class Alert {
@@ -58,83 +64,4 @@ public class Alert {
     @OrderColumn(name = "rule_order")
     private List<String> flaggedRules = new ArrayList<>();
 
-    public String getAlertId() {
-        return alertId;
-    }
-
-    public void setAlertId(String alertId) {
-        this.alertId = alertId;
-    }
-
-    public String getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(String customerId) {
-        this.customerId = customerId;
-    }
-
-    public AlertType getAlertType() {
-        return alertType;
-    }
-
-    public void setAlertType(AlertType alertType) {
-        this.alertType = alertType;
-    }
-
-    public RiskBand getRiskBand() {
-        return riskBand;
-    }
-
-    public void setRiskBand(RiskBand riskBand) {
-        this.riskBand = riskBand;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public Instant getTriggeredAt() {
-        return triggeredAt;
-    }
-
-    public void setTriggeredAt(Instant triggeredAt) {
-        this.triggeredAt = triggeredAt;
-    }
-
-    public AlertStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(AlertStatus status) {
-        this.status = status;
-    }
-
-    public String getAssignedAnalyst() {
-        return assignedAnalyst;
-    }
-
-    public void setAssignedAnalyst(String assignedAnalyst) {
-        this.assignedAnalyst = assignedAnalyst;
-    }
-
-    public List<String> getFlaggedRules() {
-        return flaggedRules;
-    }
-
-    public void setFlaggedRules(List<String> flaggedRules) {
-        this.flaggedRules = flaggedRules;
-    }
 }
