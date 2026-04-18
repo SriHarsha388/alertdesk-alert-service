@@ -10,11 +10,11 @@ import com.alertdesk.customerservice.alerts.api.dto.AlertSummaryGroupsResponse;
 import com.alertdesk.customerservice.alerts.domain.Alert;
 import com.alertdesk.customerservice.alerts.repository.AlertRepository;
 import com.alertdesk.customerservice.alerts.repository.AlertSpecifications;
-import com.alertdesk.customerservice.shared.api.ApiException;
+import com.alertdesk.customerservice.shared.api.BusinessRuleException;
+import com.alertdesk.customerservice.shared.api.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +51,7 @@ public class AlertService {
     @Transactional
     public AlertDetailResponse createAlert(AlertCreateRequest request) {
         if (alertRepository.existsByAlertId(request.alertId())) {
-            throw new ApiException(HttpStatus.CONFLICT, "Alert with id %s already exists".formatted(request.alertId()));
+            throw new BusinessRuleException("Alert with id %s already exists".formatted(request.alertId()));
         }
         Alert saved = alertRepository.save(alertMapper.toEntity(request));
         return alertMapper.toDetail(saved);
@@ -61,8 +61,7 @@ public class AlertService {
     public AlertDetailResponse updateStatus(String id, AlertStatusUpdateRequest request) {
         Alert alert = findById(id);
         if (!alert.getStatus().canTransitionTo(request.status())) {
-            throw new ApiException(
-                    HttpStatus.UNPROCESSABLE_ENTITY,
+            throw new BusinessRuleException(
                     "Invalid status transition from %s to %s".formatted(alert.getStatus(), request.status())
             );
         }
@@ -86,7 +85,7 @@ public class AlertService {
 
     private Alert findById(String id) {
         return alertRepository.findById(id)
-                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Alert %s not found".formatted(id)));
+                .orElseThrow(() -> new ResourceNotFoundException("Alert %s not found".formatted(id)));
     }
 
     private enum Grouping {
@@ -108,7 +107,7 @@ public class AlertService {
                     return grouping;
                 }
             }
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Unsupported groupBy value: %s".formatted(value));
+            throw new BusinessRuleException("Unsupported groupBy value: %s".formatted(value));
         }
     }
 }

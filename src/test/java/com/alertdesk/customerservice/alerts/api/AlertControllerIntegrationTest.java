@@ -38,7 +38,33 @@ class AlertControllerIntegrationTest {
                                 }
                                 """))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value("Invalid status transition from NEW to CLOSED"));
+                .andExpect(jsonPath("$.error").value("Invalid status transition from NEW to CLOSED"))
+                .andExpect(jsonPath("$.path").value("/api/alerts/ALT-00001/status"))
+                .andExpect(jsonPath("$.violations.length()").value(0));
+    }
+
+    @Test
+    void shouldReturnValidationErrorsWithViolations() throws Exception {
+        mockMvc.perform(post("/api/alerts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "alertId": "bad-id",
+                                  "customerId": "",
+                                  "alertType": "APP_SCAM",
+                                  "riskBand": "HIGH",
+                                  "amount": 0,
+                                  "currency": "gbp",
+                                  "triggeredAt": "2024-03-10T10:00:00Z",
+                                  "status": "NEW",
+                                  "assignedAnalyst": null,
+                                  "flaggedRules": [""]
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Validation failed"))
+                .andExpect(jsonPath("$.path").value("/api/alerts"))
+                .andExpect(jsonPath("$.violations.length()").value(5));
     }
 
     @Test

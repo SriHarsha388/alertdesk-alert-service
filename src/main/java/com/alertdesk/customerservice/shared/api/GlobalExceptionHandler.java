@@ -1,14 +1,14 @@
 package com.alertdesk.customerservice.shared.api;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
@@ -16,51 +16,115 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ApiException.class)
-    public ResponseEntity<ApiErrorResponse> handleApiException(ApiException exception) {
-        HttpStatus status = exception.getStatus();
-        return ResponseEntity.status(status)
-                .body(new ApiErrorResponse(
-                        Instant.now(),
-                        status.value(),
-                        status.getReasonPhrase(),
-                        exception.getMessage(),
-                        List.of()
-                ));
+    public record ErrorResponse(
+            Instant timestamp,
+            int status,
+            String error,
+            String path,
+            List<Violation> violations
+    ) {
+    }
+
+    public record Violation(String field, String message) {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiErrorResponse> handleValidation(MethodArgumentNotValidException exception) {
-        List<String> errors = exception.getBindingResult().getFieldErrors().stream()
-                .map(this::formatFieldError)
+    public ResponseEntity<ErrorResponse> handleBeanValidation(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request
+    ) {
+        List<Violation> violations = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> new Violation(error.getField(), error.getDefaultMessage()))
                 .toList();
-        return ResponseEntity.badRequest()
-                .body(new ApiErrorResponse(
-                        Instant.now(),
-                        HttpStatus.BAD_REQUEST.value(),
-                        HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                        "Validation failed",
-                        errors
-                ));
+
+        ErrorResponse body = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Validation failed",
+                request.getRequestURI(),
+                violations
+        );
+
+        return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(
+            ConstraintViolationException ex,
+            HttpServletRequest request
+    ) {
+        List<Violation> violations = ex.getConstraintViolations()
+                .stream()
+                .map(cv -> {
+                    String fullPath = cv.getPropertyPath().toString();
+                    String fieldName = fullPath.contains(".")
+                            ? fullPath.substring(fullPath.lastIndexOf('.') + 1)
+                            : fullPath;
+                    return new Violation(fieldName, cv.getMessage());
+                })
+                .toList();
+
+        ErrorResponse body = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Validation failed",
+                request.getRequestURI(),
+                violations
+        );
+
+        return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessRule(
+            BusinessRuleException ex,
+            HttpServletRequest request
+    ) {
+        ErrorResponse body = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                List.of()
+        );
+
+        return ResponseEntity.unprocessableEntity().body(body);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(
+            ResourceNotFoundException ex,
+            HttpServletRequest request
+    ) {
+        ErrorResponse body = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                List.of()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
     @ExceptionHandler({
             MethodArgumentTypeMismatchException.class,
-            MissingServletRequestParameterException.class,
-            ResponseStatusException.class
+            MissingServletRequestParameterException.class
     })
-    public ResponseEntity<ApiErrorResponse> handleBadRequest(Exception exception) {
-        return ResponseEntity.badRequest()
-                .body(new ApiErrorResponse(
-                        Instant.now(),
-                        HttpStatus.BAD_REQUEST.value(),
-                        HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                        exception.getMessage(),
-                        List.of()
-                ));
-    }
+    public ResponseEntity<ErrorResponse> handleBadRequest(
+            Exception ex,
+            HttpServletRequest request
+    ) {
+        ErrorResponse body = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Validation failed",
+                request.getRequestURI(),
+                List.of(new Violation("request", ex.getMessage()))
+        );
 
-    private String formatFieldError(FieldError error) {
-        return "%s: %s".formatted(error.getField(), error.getDefaultMessage());
+        return ResponseEntity.badRequest().body(body);
     }
 }
