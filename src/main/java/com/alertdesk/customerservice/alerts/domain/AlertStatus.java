@@ -9,9 +9,10 @@ public enum AlertStatus {
     public boolean canTransitionTo(AlertStatus target) {
         return switch (this) {
             case NEW -> target == UNDER_REVIEW;
-            case UNDER_REVIEW -> target == ESCALATED;
-            case ESCALATED -> target == CLOSED;
+            case UNDER_REVIEW -> target == ESCALATED || target == CLOSED;
             case CLOSED -> false;
+            default -> throw new IllegalStateException("Unexpected value: " + this);
         };
     }
 }
+

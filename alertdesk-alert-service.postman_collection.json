@@ -1,0 +1,185 @@
+{
+  "info": {
+    "_postman_id": "6f5fd430-39f0-4edc-b0ef-3ff4b6cb4b1d",
+    "name": "AlertDesk Alert Service",
+    "description": "Postman collection generated from the current Spring API in alertdesk-alert-service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "alertId",
+      "value": "ALT-00001"
+    },
+    {
+      "key": "newAlertId",
+      "value": "ALT-99999"
+    }
+  ],
+  "item": [
+    {
+      "name": "List Alerts",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/alerts?page=0&size=10&customerId=CUST-2187&alertType=APP_SCAM&riskBand=HIGH&status=UNDER_REVIEW&assignedAnalyst=s.okafor&triggeredFrom=2024-01-01T00:00:00Z&triggeredTo=2024-12-31T23:59:59Z",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "alerts"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            },
+            {
+              "key": "customerId",
+              "value": "CUST-2187"
+            },
+            {
+              "key": "alertType",
+              "value": "APP_SCAM"
+            },
+            {
+              "key": "riskBand",
+              "value": "HIGH"
+            },
+            {
+              "key": "status",
+              "value": "UNDER_REVIEW"
+            },
+            {
+              "key": "assignedAnalyst",
+              "value": "s.okafor"
+            },
+            {
+              "key": "triggeredFrom",
+              "value": "2024-01-01T00:00:00Z"
+            },
+            {
+              "key": "triggeredTo",
+              "value": "2024-12-31T23:59:59Z"
+            }
+          ]
+        },
+        "description": "Returns a paginated alert list. Remove any query parameters you do not want to filter by."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Alert By Id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/alerts/{{alertId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "alerts",
+            "{{alertId}}"
+          ]
+        },
+        "description": "Fetches a single alert by its ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Create Alert",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"alertId\": \"{{newAlertId}}\",\n  \"customerId\": \"CUST-0001\",\n  \"alertType\": \"APP_SCAM\",\n  \"riskBand\": \"HIGH\",\n  \"amount\": 100.50,\n  \"currency\": \"GBP\",\n  \"triggeredAt\": \"2024-03-10T10:00:00Z\",\n  \"status\": \"NEW\",\n  \"assignedAnalyst\": null,\n  \"flaggedRules\": [\"TEST_RULE\"]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/alerts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "alerts"
+          ]
+        },
+        "description": "Creates a new alert. Valid values include alertType: STRUCTURING, APP_SCAM, SANCTIONS_HIT, UNUSUAL_ACTIVITY, ACCOUNT_TAKEOVER; riskBand: HIGH, MEDIUM, LOW; status: NEW, UNDER_REVIEW, ESCALATED, CLOSED."
+      },
+      "response": []
+    },
+    {
+      "name": "Update Alert Status",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"UNDER_REVIEW\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/alerts/{{alertId}}/status",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "alerts",
+            "{{alertId}}",
+            "status"
+          ]
+        },
+        "description": "Updates the lifecycle status of an alert. Valid transitions are NEW -> UNDER_REVIEW -> ESCALATED -> CLOSED."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Alert Summary",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/alerts/summary?groupBy=status",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "alerts",
+            "summary"
+          ],
+          "query": [
+            {
+              "key": "groupBy",
+              "value": "status"
+            }
+          ]
+        },
+        "description": "Returns alert counts grouped by one of: status, riskBand, alertType."
+      },
+      "response": []
+    }
+  ]
+}
